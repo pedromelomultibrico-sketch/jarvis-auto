@@ -336,6 +336,41 @@ class MainActivity : Activity(), LocationListener {
         }
     }
 
+    @Suppress("DEPRECATION")
+    private fun atualizarWifi() {
+        if (!::tvWifi.isInitialized) return
+        try {
+            val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+            val caps = cm.activeNetwork?.let { cm.getNetworkCapabilities(it) }
+            val emWifi = caps?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) == true
+            val internet = caps?.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+            var ssid = ""
+            if (emWifi) {
+                val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+                ssid = wm.connectionInfo?.ssid?.trim('"') ?: ""
+                if (ssid.contains("unknown", true)) ssid = ""
+            }
+            val nome = if (ssid.isNotEmpty()) " ($ssid)" else ""
+            when {
+                emWifi && internet -> {
+                    tvWifi.text = "📶 Wi-Fi ligado$nome"
+                    tvWifi.setTextColor(Color.parseColor("#4CD964"))
+                }
+                emWifi -> {
+                    tvWifi.text = "📶 Wi-Fi$nome · sem internet"
+                    tvWifi.setTextColor(Color.parseColor("#FFA726"))
+                }
+                else -> {
+                    tvWifi.text = "✕ Sem Wi-Fi · sem internet"
+                    tvWifi.setTextColor(Color.parseColor("#FF5252"))
+                }
+            }
+        } catch (e: Exception) {
+            tvWifi.text = "Wi-Fi: estado desconhecido"
+            tvWifi.setTextColor(corSuave)
+        }
+    }
+
     // Tema automático do tablet: claro das 06:00 às 18:00, escuro das 18:00 às 06:00 (via root/Magisk)
     companion object {
         @Volatile private var temaIniciado = false
