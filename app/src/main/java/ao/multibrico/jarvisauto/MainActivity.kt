@@ -103,6 +103,7 @@ class MainActivity : Activity(), LocationListener {
         super.onCreate(savedInstanceState)
         @Suppress("DEPRECATION")
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+        iniciarTemaAuto()
         construir()
         if (!temGps()) pedirGps()
     }
