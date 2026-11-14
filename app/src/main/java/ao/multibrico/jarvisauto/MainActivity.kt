@@ -139,6 +139,20 @@ class MainActivity : Activity(), LocationListener {
         cHora.addView(tvWifi, lp(-1, -2, 10))
         painel.addView(cHora, LinearLayout.LayoutParams(-1, -2))
 
+        // Widget da faturação do Pedro (Multibrico), atualizado de minuto a minuto
+        val cFat = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cartao()
+            setPadding(dp(22), dp(14), dp(22), dp(14))
+            setOnClickListener { abrirUrl("https://multibrico-gestao.pedromelomultibrico.workers.dev") }
+        }
+        tvFat = texto(ultimoFat, 30f, corAcento, true)
+        tvFatSub = texto(ultimoFatSub, 18f, corSuave)
+        cFat.addView(texto("FATURAÇÃO · " + fMes.format(Date()).uppercase(pt), 15f, corSuave, true))
+        cFat.addView(tvFat, lp(-1, -2, 6))
+        cFat.addView(tvFatSub, lp(-1, -2, 6))
+        painel.addView(cFat, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(14) })
+
         val cVel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
