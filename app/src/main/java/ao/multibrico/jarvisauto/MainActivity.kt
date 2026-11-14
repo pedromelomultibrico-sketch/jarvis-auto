@@ -109,6 +109,7 @@ class MainActivity : Activity(), LocationListener {
         @Suppress("DEPRECATION")
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         iniciarTemaAuto()
+        iniciarRaiz(applicationContext)
         construir()
         if (!temGps()) pedirGps()
     }
