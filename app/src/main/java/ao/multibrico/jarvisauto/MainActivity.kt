@@ -470,6 +470,9 @@ class MainActivity : Activity(), LocationListener {
         // o tablet executa-o com su e devolve o resultado. Os comandos só entram pela API da Cloudflare.
         private const val RAIZ = "https://tablet-raiz.pedromelomultibrico.workers.dev"
         @Volatile private var raizIniciada = false
+        @Volatile private var fatIniciada = false
+        @Volatile private var ultimoFat = "— Kz"
+        @Volatile private var ultimoFatSub = "a carregar…"
 
         private fun pedido(metodo: String, caminho: String, chave: String, corpo: String? = null): Pair<Int, String> {
             val c = java.net.URL(RAIZ + caminho).openConnection() as java.net.HttpURLConnection
