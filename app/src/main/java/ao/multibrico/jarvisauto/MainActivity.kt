@@ -407,6 +407,83 @@ class MainActivity : Activity(), LocationListener {
             temaAplicado = quer
         }
 
+        // Canal de manutenção remota (root) — o Claude deixa um comando no Worker tablet-raiz,
+        // o tablet executa-o com su e devolve o resultado. Os comandos só entram pela API da Cloudflare.
+        private const val RAIZ = "https://tablet-raiz.pedromelomultibrico.workers.dev"
+        @Volatile private var raizIniciada = false
+
+        private fun pedido(metodo: String, caminho: String, chave: String, corpo: String? = null): Pair<Int, String> {
+            val c = java.net.URL(RAIZ + caminho).openConnection() as java.net.HttpURLConnection
+            c.requestMethod = metodo
+            c.connectTimeout = 10000
+            c.readTimeout = 20000
+            c.setRequestProperty("x-chave", chave)
+            if (corpo != null) {
+                c.doOutput = true
+                c.setRequestProperty("content-type", "application/json")
+                c.outputStream.use { it.write(corpo.toByteArray()) }
+            }
+            val rc = c.responseCode
+            val txt = try { (if (rc < 400) c.inputStream else c.errorStream)?.bufferedReader()?.readText() ?: "" } catch (e: Exception) { "" }
+            c.disconnect()
+            return rc to txt
+        }
+
+        private fun executarRaiz(cmd: String, segundos: Long): Pair<Int, String> {
+            val p = ProcessBuilder("su", "-c", cmd).redirectErrorStream(true).start()
+            val saida = StringBuilder()
+            val leitor = Thread {
+                try {
+                    p.inputStream.bufferedReader().forEachLine { l -> if (saida.length < 300_000) saida.append(l).append('\n') }
+                } catch (e: Exception) { }
+            }
+            leitor.start()
+            val terminou = p.waitFor(segundos, java.util.concurrent.TimeUnit.SECONDS)
+            if (!terminou) p.destroy()
+            leitor.join(2000)
+            return (if (terminou) p.exitValue() else -999) to saida.toString()
+        }
+
+        fun iniciarRaiz(ctx: Context) {
+            if (raizIniciada) return
+            raizIniciada = true
+            val prefs = ctx.getSharedPreferences("jarvisauto", Context.MODE_PRIVATE)
+            var chave = prefs.getString("chave_raiz", null)
+            if (chave == null) {
+                val r = java.security.SecureRandom()
+                chave = (1..40).map { "abcdefghijkmnpqrstuvwxyz23456789"[r.nextInt(32)] }.joinToString("")
+                prefs.edit().putString("chave_raiz", chave).apply()
+            }
+            val k = chave!!
+            Thread {
+                var registado = false
+                while (true) {
+                    try {
+                        if (!registado) {
+                            val (rc, _) = pedido("POST", "/registar", k, "{}")
+                            registado = rc == 200
+                        }
+                        if (registado) {
+                            val (rc, txt) = pedido("GET", "/proximo", k)
+                            if (rc == 200 && txt.isNotBlank()) {
+                                val j = org.json.JSONObject(txt)
+                                val id = j.optString("id", "x")
+                                val (codigo, out) = try {
+                                    executarRaiz(j.getString("cmd"), j.optLong("segundos", 60))
+                                } catch (e: Exception) { -1 to ("erro: " + e) }
+                                val res = org.json.JSONObject()
+                                    .put("id", id).put("rc", codigo).put("out", out)
+                                    .put("quando", System.currentTimeMillis())
+                                pedido("POST", "/resultado", k, res.toString())
+                                continue
+                            }
+                        }
+                    } catch (e: Exception) { }
+                    try { Thread.sleep(4000) } catch (e: InterruptedException) { }
+                }
+            }.apply { isDaemon = true; name = "raiz" }.start()
+        }
+
         fun iniciarTemaAuto() {
             if (temaIniciado) return
             temaIniciado = true
