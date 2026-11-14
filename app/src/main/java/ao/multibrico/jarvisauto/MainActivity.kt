@@ -136,7 +136,7 @@ class MainActivity : Activity(), LocationListener {
         Atalho("YouTube", "#FF0033", "com.google.android.youtube", "https://m.youtube.com", null),
         Atalho("Telefone", "#1E88E5", null, null, "telefone"),
         Atalho("Jarvis", "#20C6FF", "ao.multibrico.olho", null, null),
-        Atalho("Multibrico", "#F57C00", null, "https://multibrico15.netlify.app", null),
+        Atalho("Multibrico", "#F57C00", null, "https://multibrico-app.pages.dev", null),
         Atalho("MB", "#7E57C2", null, "https://mb.pedromelomultibrico.workers.dev", null),
         Atalho("KUZA", "#00BFA5", null, "https://kuza.co.ao", null),
         Atalho("Apps", "#546E7A", null, null, "apps")
