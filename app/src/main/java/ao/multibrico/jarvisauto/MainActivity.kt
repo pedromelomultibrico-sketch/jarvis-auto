@@ -133,6 +133,8 @@ class MainActivity : Activity(), LocationListener {
         cHora.addView(tvHora)
         cHora.addView(tvData, lp(-1, -2, 8))
         cHora.addView(tvBateria, lp(-1, -2, 12))
+        tvWifi = texto("", 22f, corTexto, true)
+        cHora.addView(tvWifi, lp(-1, -2, 10))
         painel.addView(cHora, LinearLayout.LayoutParams(-1, -2))
 
         val cVel = LinearLayout(this).apply {
