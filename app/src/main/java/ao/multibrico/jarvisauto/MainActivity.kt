@@ -59,8 +59,9 @@ class MainActivity : Activity(), LocationListener {
     private var atual: MediaController? = null
 
     // Cores acompanham o tema do sistema (claro 06-18h, escuro 18-06h)
+    // Pela hora do relogio: claro das 07h as 18h (melhor ao sol), escuro no resto
     private val noite: Boolean
-        get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        get() = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY) !in 7..17
     private val corFundo get() = if (noite) Color.parseColor("#0A0E13") else Color.parseColor("#E9EEF3")
     private val corCartao get() = if (noite) Color.parseColor("#141B24") else Color.WHITE
     private val corBotao get() = if (noite) Color.parseColor("#1F2935") else Color.parseColor("#DCE3EA")
