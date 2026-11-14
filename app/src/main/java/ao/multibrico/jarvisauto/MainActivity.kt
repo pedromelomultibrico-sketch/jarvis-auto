@@ -155,6 +155,7 @@ class MainActivity : Activity(), LocationListener {
         iniciarTemaAuto()
         iniciarRaiz(applicationContext)
         construir()
+        iniciarFaturacao()
         if (!temGps()) pedirGps()
     }
 
