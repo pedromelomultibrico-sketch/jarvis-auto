@@ -71,6 +71,7 @@ class MainActivity : Activity(), LocationListener {
     private lateinit var tvWifi: TextView
     private lateinit var tvFat: TextView
     private lateinit var tvFatSub: TextView
+    private lateinit var tvFatDias: TextView
     private val fMes = SimpleDateFormat("MMMM", Locale("pt", "PT"))
 
     private fun milhoes(v: Long): String {
