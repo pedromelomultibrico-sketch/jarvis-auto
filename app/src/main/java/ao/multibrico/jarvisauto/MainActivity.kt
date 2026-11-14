@@ -416,6 +416,7 @@ class MainActivity : Activity(), LocationListener {
         val agora = Date()
         tvHora.text = fHora.format(agora)
         tvData.text = fData.format(agora).replaceFirstChar { it.uppercase() }
+        atualizarWifi()
         val b = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         if (b != null) {
             val nivel = b.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
