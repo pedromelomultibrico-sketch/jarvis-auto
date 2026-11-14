@@ -193,9 +193,11 @@ class MainActivity : Activity(), LocationListener {
         }
         tvFat = texto(ultimoFat, 30f, corAcento, true)
         tvFatSub = texto(ultimoFatSub, 18f, corSuave)
-        cFat.addView(texto("FATURAÇÃO · " + fMes.format(Date()).uppercase(pt), 15f, corSuave, true))
+        cFat.addView(texto("A MINHA FATURAÇÃO · PEDRO MELO · " + fMes.format(Date()).uppercase(pt), 15f, corSuave, true))
         cFat.addView(tvFat, lp(-1, -2, 6))
         cFat.addView(tvFatSub, lp(-1, -2, 6))
+        tvFatDias = texto(ultimoFatDias, 17f, corTexto)
+        cFat.addView(tvFatDias, lp(-1, -2, 8))
         painel.addView(cFat, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(14) })
 
         val cVel = LinearLayout(this).apply {
