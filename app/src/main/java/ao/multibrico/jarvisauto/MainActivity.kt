@@ -329,6 +329,53 @@ class MainActivity : Activity(), LocationListener {
         }
     }
 
+    // Tema automático do tablet: claro das 06:00 às 18:00, escuro das 18:00 às 06:00 (via root/Magisk)
+    companion object {
+        @Volatile private var temaIniciado = false
+        @Volatile private var temaAplicado: Boolean? = null
+
+        fun querNoite(): Boolean {
+            val hora = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+            return hora < 6 || hora >= 18
+        }
+
+        fun noiteAtual(): Boolean? = try {
+            val p = Runtime.getRuntime().exec(arrayOf("su", "-c", "cmd uimode night"))
+            val out = p.inputStream.bufferedReader().readText()
+            p.waitFor()
+            when {
+                out.contains("yes", true) -> true
+                out.contains("no", true) -> false
+                else -> null
+            }
+        } catch (e: Exception) { null }
+
+        fun aplicarTema() {
+            val quer = querNoite()
+            if (temaAplicado == quer) return
+            val atual = noiteAtual()
+            if (atual != quer) {
+                try {
+                    val p = Runtime.getRuntime().exec(arrayOf("su", "-c", "cmd uimode night " + (if (quer) "yes" else "no")))
+                    p.waitFor()
+                    if (p.exitValue() != 0) return
+                } catch (e: Exception) { return }
+            }
+            temaAplicado = quer
+        }
+
+        fun iniciarTemaAuto() {
+            if (temaIniciado) return
+            temaIniciado = true
+            Thread {
+                while (true) {
+                    try { aplicarTema() } catch (e: Exception) { }
+                    try { Thread.sleep(60_000) } catch (e: InterruptedException) { }
+                }
+            }.apply { isDaemon = true; name = "tema-auto" }.start()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         esconderBarras()
