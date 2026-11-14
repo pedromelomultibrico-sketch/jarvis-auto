@@ -448,7 +448,12 @@ class MainActivity : Activity(), LocationListener {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     }
 
+    private var temaNoite: Boolean? = null
+
     private fun atualizar() {
+        val n = noite
+        if (temaNoite != null && temaNoite != n) { temaNoite = n; construir(); return }
+        temaNoite = n
         val agora = Date()
         tvHora.text = fHora.format(agora)
         tvData.text = fData.format(agora).replaceFirstChar { it.uppercase() }
