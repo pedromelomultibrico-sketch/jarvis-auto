@@ -58,12 +58,16 @@ class MainActivity : Activity(), LocationListener {
     private var semAcesso = false
     private var atual: MediaController? = null
 
-    private val corFundo = Color.parseColor("#0A0E13")
-    private val corCartao = Color.parseColor("#141B24")
-    private val corBotao = Color.parseColor("#1F2935")
-    private val corAcento = Color.parseColor("#20C6FF")
-    private val corTexto = Color.WHITE
-    private val corSuave = Color.parseColor("#8A97A8")
+    // Cores acompanham o tema do sistema (claro 06-18h, escuro 18-06h)
+    private val noite: Boolean
+        get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+    private val corFundo get() = if (noite) Color.parseColor("#0A0E13") else Color.parseColor("#E9EEF3")
+    private val corCartao get() = if (noite) Color.parseColor("#141B24") else Color.WHITE
+    private val corBotao get() = if (noite) Color.parseColor("#1F2935") else Color.parseColor("#DCE3EA")
+    private val corAcento get() = if (noite) Color.parseColor("#20C6FF") else Color.parseColor("#0088CC")
+    private val corTexto get() = if (noite) Color.WHITE else Color.parseColor("#0A0E13")
+    private val corSuave get() = if (noite) Color.parseColor("#8A97A8") else Color.parseColor("#55606E")
+    private lateinit var tvWifi: TextView
 
     private val pt = Locale("pt", "PT")
     private val fHora = SimpleDateFormat("HH:mm", pt)
