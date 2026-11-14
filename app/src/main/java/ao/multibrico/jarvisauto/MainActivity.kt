@@ -93,8 +93,18 @@ class MainActivity : Activity(), LocationListener {
                             val pct = j.optDouble("pct"); val obj = j.optLong("objetivo")
                             ultimoFat = milhoes(mes) + "  ·  " + String.format(Locale("pt", "PT"), "%.0f", pct) + "%"
                             ultimoFatSub = "Hoje " + milhoes(dia) + "  ·  objetivo " + milhoes(obj)
+                            val arr = j.optJSONArray("dias")
+                            val sb = StringBuilder()
+                            if (arr != null) for (i in 0 until arr.length()) {
+                                val o = arr.getJSONObject(i)
+                                val d = o.optString("d")
+                                val dd = if (d.length >= 10) d.substring(8, 10) + "/" + d.substring(5, 7) else d
+                                if (sb.isNotEmpty()) sb.append("\n")
+                                sb.append(dd).append("   ").append(milhoes(o.optLong("v")))
+                            }
+                            ultimoFatDias = if (sb.isEmpty()) "Sem faturas este mês" else sb.toString()
                             h.post {
-                                if (::tvFat.isInitialized) { tvFat.text = ultimoFat; tvFatSub.text = ultimoFatSub }
+                                if (::tvFat.isInitialized) { tvFat.text = ultimoFat; tvFatSub.text = ultimoFatSub; tvFatDias.text = ultimoFatDias }
                             }
                         }
                     }
