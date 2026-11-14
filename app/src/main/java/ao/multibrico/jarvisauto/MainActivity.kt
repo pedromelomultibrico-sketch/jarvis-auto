@@ -69,6 +69,50 @@ class MainActivity : Activity(), LocationListener {
     private val corTexto get() = if (noite) Color.WHITE else Color.parseColor("#0A0E13")
     private val corSuave get() = if (noite) Color.parseColor("#8A97A8") else Color.parseColor("#55606E")
     private lateinit var tvWifi: TextView
+    private lateinit var tvFat: TextView
+    private lateinit var tvFatSub: TextView
+    private val fMes = SimpleDateFormat("MMMM", Locale("pt", "PT"))
+
+    private fun milhoes(v: Long): String {
+        val m = v / 1_000_000.0
+        return String.format(Locale("pt", "PT"), "%.1f M Kz", m)
+    }
+
+    private fun iniciarFaturacao() {
+        if (fatIniciada) return
+        fatIniciada = true
+        Thread {
+            while (true) {
+                try {
+                    val k = getSharedPreferences("jarvisauto", Context.MODE_PRIVATE).getString("chave_raiz", null)
+                    if (k != null) {
+                        val (rc, txt) = pedidoFat(k)
+                        if (rc == 200) {
+                            val j = org.json.JSONObject(txt)
+                            val mes = j.optLong("mes"); val dia = j.optLong("dia")
+                            val pct = j.optDouble("pct"); val obj = j.optLong("objetivo")
+                            ultimoFat = milhoes(mes) + "  ·  " + String.format(Locale("pt", "PT"), "%.0f", pct) + "%"
+                            ultimoFatSub = "Hoje " + milhoes(dia) + "  ·  objetivo " + milhoes(obj)
+                            h.post {
+                                if (::tvFat.isInitialized) { tvFat.text = ultimoFat; tvFatSub.text = ultimoFatSub }
+                            }
+                        }
+                    }
+                } catch (e: Exception) { }
+                try { Thread.sleep(60_000) } catch (e: InterruptedException) { }
+            }
+        }.apply { isDaemon = true; name = "faturacao" }.start()
+    }
+
+    private fun pedidoFat(k: String): Pair<Int, String> {
+        val c = java.net.URL("https://tablet-raiz.pedromelomultibrico.workers.dev/faturacao").openConnection() as java.net.HttpURLConnection
+        c.connectTimeout = 10000; c.readTimeout = 20000
+        c.setRequestProperty("x-chave", k)
+        val rc = c.responseCode
+        val t = try { c.inputStream.bufferedReader().readText() } catch (e: Exception) { "" }
+        c.disconnect()
+        return rc to t
+    }
 
     private val pt = Locale("pt", "PT")
     private val fHora = SimpleDateFormat("HH:mm", pt)
