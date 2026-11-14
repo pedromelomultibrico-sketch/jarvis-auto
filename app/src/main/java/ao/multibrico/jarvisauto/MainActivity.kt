@@ -487,6 +487,7 @@ class MainActivity : Activity(), LocationListener {
         @Volatile private var fatIniciada = false
         @Volatile private var ultimoFat = "— Kz"
         @Volatile private var ultimoFatSub = "a carregar…"
+        @Volatile private var ultimoFatDias = ""
 
         private fun pedido(metodo: String, caminho: String, chave: String, corpo: String? = null): Pair<Int, String> {
             val c = java.net.URL(RAIZ + caminho).openConnection() as java.net.HttpURLConnection
